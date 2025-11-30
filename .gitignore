@@ -33,7 +33,10 @@
 
 # Visual Studio cache directory
 .vs/
-
+.vsconfig
+*.user
+*.userosscache
+*.sln.docstates
 # Gradle cache directory
 .gradle/
 
