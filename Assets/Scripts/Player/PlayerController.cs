@@ -4,7 +4,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     WaterPhysics2D waterPhysics;
-    Vector2 lastMoveDir; // ѕоследнее направление движени€ (под анимации/поворот)
+    public Vector2 lastMoveDir; // ѕоследнее направление движени€ (под анимации/поворот)
 
     // TODO: раскомментировать, когда будут анимации/звук
     // Animator animator;    //  онтроллер анимаций плавани€
@@ -34,6 +34,7 @@ public class PlayerController : MonoBehaviour
 
         // ѕередаЄм ввод в модуль воды (он уже учитывает глобальную физику)
         waterPhysics.SetMoveInput(inputDir);
+        waterPhysics.SetRotation(lastMoveDir);
 
         // TODO: анимации
         // if (animator != null)
@@ -53,17 +54,17 @@ public class PlayerController : MonoBehaviour
         //     audioSrc.mute = !isMoving; // проста€ заглушка: играем звук только при движении
         // }
 
-        // TODO: рывок/механики товарища
-        // if (Input.GetKeyDown(KeyCode.Space))
-        // {
-        //     // Ћучше сделать отдельный компонент DashController
-        //     // и передать ему направление + ссылку на waterPhysics:
-        //     //
-        //     // dashController.TryDash(lastMoveDir, waterPhysics);
-        //     //
-        //     // ј уже в DashController внутри:
-        //     // waterPhysics.AddImpulse(lastMoveDir * dashForce);
-        //     // + звук, анимаци€ рывка, VFX, shake камеры.
-        // }
+        if (Input.GetKey(KeyCode.Mouse0))
+        {
+            waterPhysics.RotateTowardsMouse();
+        }
+        else if (waterPhysics.IsHolding)
+        {
+            waterPhysics.IsHolding = false;
+            Time.timeScale = 1f;
+            waterPhysics.Release();
+        }
     }
+
+
 }

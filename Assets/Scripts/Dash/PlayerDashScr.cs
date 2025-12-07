@@ -2,9 +2,8 @@ using UnityEngine;
 
 public class PlayerDashScr : MonoBehaviour
 {
-    [Header("Настройки")]
+    [Header("DashSettings")]
     [SerializeField] private float rotationSpeed = 10f;
-
     [SerializeField] Camera mainCamera;
     [SerializeField] Rigidbody2D rb;
     [SerializeField] float dashSpeed = 6f;
@@ -13,6 +12,7 @@ public class PlayerDashScr : MonoBehaviour
     bool IsHolding = false;
     bool IsDasing = true;
     Vector2 direction;
+
     void Update()
     {
         if (Input.GetKey(KeyCode.Mouse0))

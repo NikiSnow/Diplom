@@ -27,7 +27,7 @@ public class TestFishScr : MonoBehaviour
     {
         if (collision.CompareTag("Player"))
         {
-            collision.GetComponent<PlayerDashScr>().StopRb();
+            //collision.GetComponent<PlayerDashScr>().StopRb();
             Destroy(this.gameObject);
         }
     }

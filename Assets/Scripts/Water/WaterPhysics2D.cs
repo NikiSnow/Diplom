@@ -3,16 +3,27 @@
 [RequireComponent(typeof(Rigidbody2D))]
 public class WaterPhysics2D : MonoBehaviour
 {
+    [SerializeField] PlayerController PController;
     [Header("Параметры движения")]
-    public bool useGlobalSettings = true; // Брать базовые значения из GlobalWater
-    public float moveSpeed = 6f;          // Целевая скорость при полном вводе
-    public float acceleration = 12f;      // Разгон до целевой скорости
-    public float drag = 4f;               // Торможение, когда нет ввода
+    [SerializeField] bool useGlobalSettings = true; // Брать базовые значения из GlobalWater
+    [SerializeField] float moveSpeed = 6f;          // Целевая скорость при полном вводе
+    [SerializeField] float acceleration = 12f;      // Разгон до целевой скорости
+    [SerializeField] float drag = 4f;               // Торможение, когда нет ввода
 
     Rigidbody2D rb;
     Vector2 moveInput;                    // Вектор направления от контроллера
     Vector2 controlledVelocity;           // Скорость от "обычного" движения
     Vector2 externalVelocity;             // Доп. скорость (рывки, отдача и т.п.)
+
+    [Header("DashSettings")]
+    [SerializeField] private float rotationSpeed = 10f;
+    [SerializeField] Camera mainCamera;
+    [SerializeField] float dashSpeed = 6f;
+    [SerializeField] float DashCD = 1f;
+    [SerializeField] float DashLenght = 5f;
+    public bool IsHolding = false;
+    bool IsDasing = false;
+    Vector2 direction;
 
     void Awake()
     {
@@ -32,7 +43,6 @@ public class WaterPhysics2D : MonoBehaviour
             // TODO: здесь можно подвязать глобальный цвет воды / эффекты по желанию
         }
     }
-
     void FixedUpdate()
     {
         float dt = Time.fixedDeltaTime;
@@ -56,15 +66,64 @@ public class WaterPhysics2D : MonoBehaviour
         }
 
         // Итоговая скорость = основное движение + импульсы
-        rb.linearVelocity = controlledVelocity + externalVelocity; // вместо rb.velocity
+        rb.linearVelocity = controlledVelocity + externalVelocity;
 
         // TODO: сюда можно повесить VFX пузырьков при достаточной скорости
         // if (rb.linearVelocity.sqrMagnitude > someThreshold * someThreshold) { ... }
     }
 
+    public void SetRotation(Vector2 dir)
+    {
+        float targetAngle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+        Quaternion targetRotation = Quaternion.AngleAxis(targetAngle, Vector3.forward);
+        if (IsHolding)
+        {
+            moveInput = Vector2.zero;
+            return;
+        }
+        if (IsDasing)
+        {
+            if (rb.linearVelocity.sqrMagnitude >= 5f)
+            {
+                transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                targetRotation,
+                (rotationSpeed*2) * Time.deltaTime);
+            }
+            else
+            {
+                return;
+            }
+        }
+
+        if (Quaternion.Angle(transform.rotation, targetRotation) > 1.5f)
+        {
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                targetRotation,
+                rotationSpeed * Time.deltaTime
+            );
+        }
+        else
+        {
+            transform.rotation = targetRotation;
+        }
+    }
+
     // Вызывается контроллером (игрок/моб) в Update
     public void SetMoveInput(Vector2 dir)
     {
+        if (IsHolding)
+        {
+            moveInput = Vector2.zero;
+            return;
+        }
+        if (IsDasing)
+        {
+            if (rb.linearVelocity.sqrMagnitude <= 0.0001f) IsDasing = false;
+            return;
+        }
+
         // Нормализуем, чтобы по диагонали не было бонусной скорости
         if (dir.sqrMagnitude > 1f)
             dir.Normalize();
@@ -94,5 +153,46 @@ public class WaterPhysics2D : MonoBehaviour
         drag = newSettings.baseDrag;
 
         // TODO: здесь можно менять постэффекты по глубине/зоне
+    }
+
+    public void RotateTowardsMouse()
+    {
+        if (IsDasing) return;
+        Vector3 mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+
+        direction = new Vector2(
+            mousePosition.x - transform.position.x,
+            mousePosition.y - transform.position.y
+        );
+
+        float targetAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        Quaternion targetRotation = Quaternion.AngleAxis(targetAngle, Vector3.forward);
+        transform.rotation = Quaternion.Slerp(
+            transform.rotation,
+            targetRotation,
+            rotationSpeed * Time.deltaTime
+        );
+        IsHolding = true;
+        Time.timeScale = 0.4f;
+    }
+    public void Release()
+    {
+        //rb.linearVelocity = Vector3.zero;
+        //rb.linearVelocity = direction * dashSpeed;
+
+        float targetAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        Quaternion targetRotation = Quaternion.AngleAxis(targetAngle, Vector3.forward);
+        //if (Quaternion.Angle(transform.rotation, targetRotation) > 25f)
+        //    transform.rotation = Quaternion.Slerp(
+        //        transform.rotation,
+        //        targetRotation,
+        //        50 * Time.deltaTime);
+        PController.lastMoveDir = direction.normalized;
+        IsDasing = true;
+        AddImpulse(direction * dashSpeed);
+    }
+    public void StopRb()
+    {
+        rb.linearVelocity = new Vector3(rb.linearVelocity.x / 100, rb.linearVelocity.y / 100, 0);
     }
 }
