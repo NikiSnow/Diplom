@@ -2,58 +2,104 @@ using UnityEngine;
 
 public class PlayerDashScr : MonoBehaviour
 {
-    [Header("DashSettings")]
+    [Header("Dash Settings")]
     [SerializeField] private float rotationSpeed = 10f;
-    [SerializeField] Camera mainCamera;
-    [SerializeField] Rigidbody2D rb;
-    [SerializeField] float dashSpeed = 6f;
-    [SerializeField] float DashCD = 1f;
-    [SerializeField] float DashLenght = 5f;
-    bool IsHolding = false;
-    bool IsDasing = true;
-    Vector2 direction;
+    [SerializeField] private Camera mainCamera;
+    [SerializeField] private Rigidbody2D rb;
+    [SerializeField] private float dashSpeed = 6f;
+    [SerializeField] private float dashDuration = 0.25f; // длительность рывка
+
+    [Header("Slow Motion")]
+    [SerializeField] private float aimTimeScale = 0.15f; // замедление мира при зажатой ЛКМ
+
+    bool isAiming = false;    // прицеливание (ЛКМ зажата)
+    bool isDashing = false;   // сейчас идёт рывок
+    float dashTimer = 0f;     // таймер рывка
+    Vector2 dashDirection;    // запомненное направление рывка
+
+    public bool IsDashing => isDashing; // нужно рыбам
 
     void Update()
     {
-        if (Input.GetKey(KeyCode.Mouse0))
+        HandleInput();
+        UpdateDash();
+    }
+
+    void HandleInput()
+    {
+        // НАЧАЛО прицеливания — ЛКМ нажали
+        if (Input.GetMouseButtonDown(0) && !isDashing)
+        {
+            isAiming = true;
+            Time.timeScale = aimTimeScale;
+        }
+
+        // УДЕРЖИВАЕМ ЛКМ — крутимся к мыши
+        if (isAiming && Input.GetMouseButton(0))
         {
             RotateTowardsMouse();
         }
-        else if (IsHolding)
+
+        // КОНЕЦ прицеливания — отпустили ЛКМ -> рывок
+        if (isAiming && Input.GetMouseButtonUp(0))
         {
-            IsHolding = false;
+            isAiming = false;
             Time.timeScale = 1f;
-            Release();
+            StartDash();
         }
     }
 
-    private void RotateTowardsMouse()
+    void UpdateDash()
     {
-        Vector3 mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+        if (!isDashing)
+            return;
 
-        direction = new Vector2(
-            mousePosition.x - transform.position.x,
-            mousePosition.y - transform.position.y
+        dashTimer += Time.unscaledDeltaTime; // не зависит от слоумо
+        if (dashTimer >= dashDuration)
+        {
+            isDashing = false;
+        }
+    }
+
+    void RotateTowardsMouse()
+    {
+        Vector3 mouseWorld = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+
+        dashDirection = new Vector2(
+            mouseWorld.x - transform.position.x,
+            mouseWorld.y - transform.position.y
         );
 
-        float targetAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        Quaternion targetRotation = Quaternion.AngleAxis(targetAngle, Vector3.forward);
+        if (dashDirection.sqrMagnitude < 0.0001f)
+            return;
+
+        float targetAngle = Mathf.Atan2(dashDirection.y, dashDirection.x) * Mathf.Rad2Deg;
+        Quaternion targetRot = Quaternion.AngleAxis(targetAngle, Vector3.forward);
+
         transform.rotation = Quaternion.Slerp(
             transform.rotation,
-            targetRotation,
-            rotationSpeed * Time.deltaTime
+            targetRot,
+            rotationSpeed * Time.unscaledDeltaTime
         );
-        IsHolding = true;
-        Time.timeScale = 0.4f;
     }
-    private void Release()
+
+    void StartDash()
     {
-        rb.linearVelocity = Vector3.zero;
-        rb.linearVelocity = direction * dashSpeed;
-        IsDasing = true;
+        if (dashDirection.sqrMagnitude < 0.0001f)
+            return;
+
+        dashDirection.Normalize();
+
+        rb.linearVelocity = Vector2.zero;
+        rb.linearVelocity = dashDirection * dashSpeed;
+
+        isDashing = true;
+        dashTimer = 0f;
     }
+
     public void StopRb()
     {
-        rb.linearVelocity = new Vector3(rb.linearVelocity.x/100, rb.linearVelocity.y / 100,0);
+        rb.linearVelocity = rb.linearVelocity / 100f;
+        isDashing = false;
     }
 }
