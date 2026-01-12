@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class TestFishScr : MonoBehaviour
@@ -18,11 +19,13 @@ public class TestFishScr : MonoBehaviour
 
     [SerializeField] float rotationSpeed = 180f;
 
-    private int _currentWaypointIndex = 0;
-    private int _previousWaypointIndex = -1;
-    private float _pauseTimer = 0f;
-    private bool _isPaused = false;
-    private float _currentAngle = 0f;
+    int _currentWaypointIndex = 0;
+    int _previousWaypointIndex = -1;
+    float _pauseTimer = 0f;
+    bool _isPaused = false;
+    float _currentAngle = 0f;
+    bool Freezed = false;
+    Coroutine FreezeCoroutine;
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
@@ -30,6 +33,27 @@ public class TestFishScr : MonoBehaviour
             //collision.GetComponent<PlayerDashScr>().StopRb();
             Destroy(this.gameObject);
         }
+        else if (collision.CompareTag("Bullet"))
+        {
+            Destroy(collision.gameObject);
+            Freeze();
+        }
+    }
+    void Freeze()
+    {
+        Freezed = true;
+        if (FreezeCoroutine != null)
+        {
+            StopCoroutine(FreezeCoroutine);
+            FreezeCoroutine = null;
+        }
+        FreezeCoroutine = StartCoroutine(BeFrezzed());
+        //Visual
+    }
+    IEnumerator BeFrezzed()
+    {
+        yield return new WaitForSeconds(2.5f);
+        Freezed = false;
     }
     void Start()
     {
@@ -54,6 +78,10 @@ public class TestFishScr : MonoBehaviour
 
     void Update()
     {
+        if (Freezed == true)
+        {
+            return;
+        }
         // Движение к текущей точке
         Vector2 targetPos = waypoints[_currentWaypointIndex].position;
         Vector2 moveDirection = (targetPos - (Vector2)transform.position).normalized;

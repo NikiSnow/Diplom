@@ -10,6 +10,11 @@ public class PlayerController : MonoBehaviour
     // Animator animator;    // Контроллер анимаций плавания
     // AudioSource audioSrc; // Звук плавания / рывков
 
+    [SerializeField] GameObject TheGun;
+    [SerializeField] Freezer TheFreezer;
+    bool IsDash = true;
+    bool IsGun = false;
+
     void Awake()
     {
         // Кешируем ссылку на модуль воды
@@ -21,6 +26,12 @@ public class PlayerController : MonoBehaviour
     }
 
     void Update()
+    {
+        Move();
+        Gun();
+        Swap();
+    }
+    private void Move()
     {
         // Читаем ввод по осям (WASD/стрелки)
         float h = Input.GetAxisRaw("Horizontal");
@@ -53,18 +64,45 @@ public class PlayerController : MonoBehaviour
         //     bool isMoving = inputDir.sqrMagnitude > 0.01f;
         //     audioSrc.mute = !isMoving; // простая заглушка: играем звук только при движении
         // }
-
-        if (Input.GetKey(KeyCode.Mouse0))
+        if (IsDash == true)
         {
-            waterPhysics.RotateTowardsMouse();
-        }
-        else if (waterPhysics.IsHolding)
-        {
-            waterPhysics.IsHolding = false;
-            Time.timeScale = 1f;
-            waterPhysics.Release();
+            if (Input.GetKey(KeyCode.Mouse0))
+            {
+                waterPhysics.RotateTowardsMouse();
+            }
+            else if (waterPhysics.IsHolding)
+            {
+                waterPhysics.IsHolding = false;
+                Time.timeScale = 1f;
+                waterPhysics.Release();
+            }
         }
     }
-
-
+    private void Gun()
+    {
+        if (IsGun == true)
+        {
+            if (Input.GetKeyDown(KeyCode.Mouse0))
+            {
+                TheFreezer.Shoot();
+            }
+        }
+    }
+    private void Swap()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            Debug.Log(1);
+            IsDash = true;
+            IsGun = false;
+            TheGun.SetActive(false);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            Debug.Log(2);
+            IsDash = false;
+            IsGun = true;
+            TheGun.SetActive(true);
+        }
+    }
 }

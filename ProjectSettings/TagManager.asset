@@ -5,15 +5,16 @@ TagManager:
   serializedVersion: 3
   tags:
   - Fish
+  - Bullet
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Player
   - Water
   - UI
   - Fish
-  - 
+  - Projectile
   - 
   - 
   - 
