@@ -49,4 +49,9 @@ public class LobbyCamera : MonoBehaviour
         //Swap = true;
         MainOffset = LobbyOffset;
     }
+
+    public void SetTarget(Transform NewTarg)
+    {
+        Target = NewTarg;
+    }
 }

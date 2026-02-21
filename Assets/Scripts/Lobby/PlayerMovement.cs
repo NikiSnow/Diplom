@@ -10,7 +10,7 @@ public class Player : MonoBehaviour
     [SerializeField] float posY;    //On lobby ground pos Y
     float hor;
     bool IsGrounded = false;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    public bool LockControls = false;
     void Start()
     {
 
@@ -19,6 +19,8 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (LockControls) return;
+
         RaycastHit2D hit = Physics2D.Raycast(
             transform.position,
             Vector2.down,
