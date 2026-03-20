@@ -3,7 +3,7 @@ using UnityEngine;
 [RequireComponent(typeof(WaterPhysics2D))]
 public class PlayerController : MonoBehaviour
 {
-    WaterPhysics2D waterPhysics;
+    [SerializeField] WaterPhysics2D waterPhysics;
     public Vector2 lastMoveDir; // ѕоследнее направление движени€ (под анимации/поворот)
 
     // TODO: раскомментировать, когда будут анимации/звук
@@ -17,8 +17,7 @@ public class PlayerController : MonoBehaviour
 
     void Awake()
     {
-        //  ешируем ссылку на модуль воды
-        waterPhysics = GetComponent<WaterPhysics2D>();
+        //waterPhysics = GetComponent<WaterPhysics2D>();
 
         // TODO: если аниматор/аудио на ребЄнке:
         // animator = GetComponentInChildren<Animator>();
