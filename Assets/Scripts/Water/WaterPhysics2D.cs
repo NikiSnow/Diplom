@@ -6,9 +6,16 @@ public class WaterPhysics2D : MonoBehaviour
     [SerializeField] PlayerController PController;
     [Header("Параметры движения")]
     [SerializeField] bool useGlobalSettings = true; // Брать базовые значения из GlobalWater
-    [SerializeField] float moveSpeed = 6f;          // Целевая скорость при полном вводе
-    [SerializeField] float acceleration = 12f;      // Разгон до целевой скорости
-    [SerializeField] float drag = 4f;               // Торможение, когда нет ввода
+    [SerializeField] float moveSpeed = 6f;
+    [SerializeField] float acceleration = 12f;
+    [SerializeField] float drag = 4f;
+
+    // Публичное свойство/метод для доступа к скорости
+    public float BaseMoveSpeed
+    {
+        get => moveSpeed;
+        set => moveSpeed = value;
+    }
 
     Rigidbody2D rb;
     Vector2 moveInput;                    // Вектор направления от контроллера
