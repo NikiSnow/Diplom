@@ -619,6 +619,7 @@ MonoBehaviour:
   dashSpeed: 6
   DashCD: 1
   DashLenght: 5
+  controlReturnDelay: 1
   IsHolding: 0
 --- !u!114 &722772527
 MonoBehaviour:
