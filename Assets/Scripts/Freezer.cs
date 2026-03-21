@@ -26,7 +26,7 @@ public class Freezer : MonoBehaviour
             targetRotation,
             rotationSpeed * Time.deltaTime
         );
-        Time.timeScale = 0.4f;
+        //Time.timeScale = 0.4f;
     }
     public void Shoot()
     {

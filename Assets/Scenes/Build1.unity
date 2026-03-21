@@ -576,7 +576,7 @@ MonoBehaviour:
   Cd: 0
   Bullet: {fileID: 7281956867246361168, guid: 24fa3dacf1bbc3d45aaea0a15c885f7d, type: 3}
   bulletPos: {fileID: 1646371164}
-  Speed: 40
+  Speed: 30
 --- !u!1 &471978948
 GameObject:
   m_ObjectHideFlags: 0
