@@ -1144,9 +1144,9 @@ DistanceJoint2D:
   m_BreakAction: 3
   m_AutoConfigureConnectedAnchor: 0
   m_Anchor: {x: 0, y: 0}
-  m_ConnectedAnchor: {x: 1.1601908, y: 3.013974}
+  m_ConnectedAnchor: {x: 0, y: 0.53}
   m_AutoConfigureDistance: 1
-  m_Distance: 8.074838
+  m_Distance: 5.5699997
   m_MaxDistanceOnly: 0
 --- !u!233 &995822595
 HingeJoint2D:
