@@ -36,7 +36,8 @@ public class Freezer : MonoBehaviour
             mousePosition.x - transform.position.x,
             mousePosition.y - transform.position.y
         );
-        var Bul = Instantiate(Bullet, bulletPos.position, Quaternion.identity);
+        direction.Normalize();
+        var Bul = Instantiate(Bullet, bulletPos.position, bulletPos.rotation);
         Bul.GetComponent<Rigidbody2D>().linearVelocity = direction * Speed;
     }
 }
